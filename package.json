@@ -24,7 +24,6 @@
   "homepage": "https://github.com/mbullington/ec-dh",
   "dependencies": {
     "es6-promises": "^1.0.10",
-    "goal": "^1.1.0",
-    "segfault-handler": "^0.2.4"
+    "goal": "^1.1.0"
   }
 }
