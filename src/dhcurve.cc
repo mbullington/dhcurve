@@ -31,25 +31,27 @@ Handle<Value> bnToBuf(const BIGNUM *bn) {
   return buffer->handle_;
 }
 
-Handle<Value> GenerateKeyPair(const v8::Arguments& args) {
-  std::cout << "Start";
+Handle<Value> GetSharedSecret(const Arguments& args) {
+  return Undefined();
+}
 
-  Local<Integer> namedCurve = Local<Integer>::Cast(args[0]);
+Handle<Value> GenerateKeyPair(const Arguments& args) {
+  String::Utf8Value namedCurve(args[0]);
   EC_KEY *key;
-  int curve;
+  int curve = OBJ_sn2nid(*namedCurve);
   
-  if(namedCurve->Value() == 0) {
-    curve = NID_X9_62_prime256v1;
+  if(curve == NID_undef) {
+    THROW("Invalid curve name")
   }
   
   if((key = EC_KEY_new_by_curve_name(curve)) == NULL) {
-    THROW("Key couldn't be initialized.")
+    THROW("Key could not be created using curve name")
     EC_KEY_free(key);
     return Undefined();
   }
   
   if(EC_KEY_generate_key(key) == 0) {
-    THROW("Key failed to generate.")
+    THROW("Key failed to generate")
     EC_KEY_free(key);
     return Undefined();
   }
@@ -67,7 +69,7 @@ Handle<Value> GenerateKeyPair(const v8::Arguments& args) {
     BN_clear_free(x);
     BN_clear_free(y);
     EC_KEY_free(key);
-    THROW("Could not get public key.")
+    THROW("Could not get public key")
     return Undefined();
   }
   
@@ -89,6 +91,7 @@ Handle<Value> GenerateKeyPair(const v8::Arguments& args) {
 
 void Init(Handle<Object> exports, Handle<Value> module) {
   NODE_SET_METHOD(exports, "generateKeyPair", GenerateKeyPair);
+  NODE_SET_METHOD(exports, "getSharedSecret", GetSharedSecret);
 }
 
 NODE_MODULE(dhcurve, Init)
