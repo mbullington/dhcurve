@@ -37,4 +37,12 @@ describe('Point', function() {
 
     assert(publicKey.getEncoded().toString('base64').replace("=", "") === 'BCVrEhPXmozrKAextseekQauwrRz3lz2sj56td9j09Oajar0RoVR5Uo95AVuuws1vVEbDzhOUu7freU0BXD759U');
   });
+
+  it('equals()', function(done) {
+    ecdh.generateKeyPair(ecdh.NamedCurve.P256).then(function(keypair) {
+      var point = new ecdh.Point(ecdh.NamedCurve.P256, keypair.publicKey.x, keypair.publicKey.y);
+      assert(point.equals(keypair.publicKey));
+      done();
+    });
+  });
 });
