@@ -3,10 +3,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
 
 #include <node.h>
 #include <node_buffer.h>
 #include <v8.h>
+#include <nan.h>
 
 #include <openssl/bn.h>
 #include <openssl/ec.h>
@@ -47,7 +49,5 @@ class ScopedOpenSSL {
 typedef ScopedOpenSSL<BIGNUM, BN_clear_free> S_BIGNUM;
 typedef ScopedOpenSSL<EC_KEY, EC_KEY_free> S_EC_KEY;
 typedef ScopedOpenSSL<EC_POINT, EC_POINT_clear_free> S_EC_POINT;
-
-#define THROW(error) ThrowException(String::New((error)));
 
 #endif

@@ -3,7 +3,10 @@
 		{
 			'target_name': 'dhcurve',
 			'sources': [ 'src/dhcurve.cc' ],
-			'conditions': [
+			'include_dirs': [
+                "<!(node -e \"require('nan')\")"
+            ],
+            'conditions': [
 				[ 'OS=="win"', {
 				  'conditions': [
 					# "openssl_root" is the directory on Windows of the OpenSSL files
@@ -21,8 +24,8 @@
 					'-l<(openssl_root)/lib/libeay32.lib',
 				  ],
 				  'include_dirs': [
-					'<(openssl_root)/include',
-				  ],
+					'<(openssl_root)/include'
+                  ],
 				}, { # OS!="win"
 				  'conditions': [
 					[ 'node_shared_openssl=="false"', {

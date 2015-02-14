@@ -1,5 +1,12 @@
 var assert = require('assert'),
-    curve = require('../lib/index.js');
+    curve = require('../lib/index.js'),
+    Promise = Promise || require('es6-promises');
+
+it('generateKeyPair()', function(done) {
+  curve.generateKeyPair(curve.NamedCurve.P256).then(function(keypair) {
+    done();
+  });
+});
 
 describe('PrivateKey', function() {
   describe('getSharedSecret()', function() {
@@ -15,6 +22,7 @@ describe('PrivateKey', function() {
     */
 
     it('is reversable', function(done) {
+      this.timeout(5000);
       curve.generateKeyPair(curve.NamedCurve.P256).then(function(keypair1) {
         curve.generateKeyPair(curve.NamedCurve.P256).then(function(keypair2) {
           Promise.all([
@@ -51,6 +59,8 @@ describe('Point', function() {
       var point = new curve.Point(curve.NamedCurve.P256, keypair.publicKey.x, keypair.publicKey.y);
       assert(point.equals(keypair.publicKey));
       done();
+    }).catch(function(e) {
+      console.log(e);
     });
   });
 });
