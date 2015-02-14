@@ -153,9 +153,9 @@ NAN_METHOD(GenerateKeyPair) {
   NanReturnValue(r);
 }
 
-void Init(Handle<Object> exports, Handle<Value> module) {
+void init(Handle<Object> exports) {
   NODE_SET_METHOD(exports, "generateKeyPair", GenerateKeyPair);
   NODE_SET_METHOD(exports, "getSharedSecret", GetSharedSecret);
 }
 
-NODE_MODULE(dhcurve, Init)
+NODE_MODULE(dhcurve, init)
