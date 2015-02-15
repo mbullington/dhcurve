@@ -25,7 +25,8 @@
   "dependencies": {
     "es6-promises": "^1.0.10",
     "goal": "^1.1.0",
-    "nan": "^1.6.2"
+    "nan": "^1.6.2",
+    "sjcl": "^1.0.2"
   },
   "devDependencies": {
     "gulp": "^3.8.10",

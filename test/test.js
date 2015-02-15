@@ -1,11 +1,8 @@
 var assert = require('assert'),
-    curve = require('../lib/index.js'),
-    Promise = Promise || require('es6-promises');
+    curve = require('../lib/index.js');
 
-it('generateKeyPair()', function(done) {
-  curve.generateKeyPair(curve.NamedCurve.P256).then(function(keypair) {
-    done();
-  });
+it('generateKeyPair()', function() {
+  var keypair = curve.generateKeyPair(curve.NamedCurve.P256);
 });
 
 describe('PrivateKey', function() {
@@ -21,25 +18,14 @@ describe('PrivateKey', function() {
     });
     */
 
-    it('is reversable', function(done) {
-      this.timeout(5000);
-      curve.generateKeyPair(curve.NamedCurve.P256).then(function(keypair1) {
-        curve.generateKeyPair(curve.NamedCurve.P256).then(function(keypair2) {
-          Promise.all([
-            keypair1.privateKey.getSharedSecret(keypair2.publicKey),
-            keypair2.privateKey.getSharedSecret(keypair1.publicKey)
-          ]).then(function(values) {
-            assert(values[0].toString('hex') === values[1].toString('hex'));
-            done();
-          }).catch(function(e) {
-            throw e;
-          });
-        }).catch(function(e) {
-          throw e;
-        });
-      }).catch(function(e) {
-        throw e;
-      });
+    it('is reversable', function() {
+      var keypair1 = curve.generateKeyPair(curve.NamedCurve.P256);
+      var keypair2 = curve.generateKeyPair(curve.NamedCurve.P256);
+
+      var secret1 = keypair1.privateKey.getSharedSecret(keypair2.publicKey);
+      var secret2 = keypair2.privateKey.getSharedSecret(keypair1.publicKey);
+
+      assert(secret1.toString('hex') === secret2.toString('hex'));
     });
   });
 });
@@ -54,13 +40,9 @@ describe('Point', function() {
   });
   */
 
-  it('equals()', function(done) {
-    curve.generateKeyPair(curve.NamedCurve.P256).then(function(keypair) {
-      var point = new curve.Point(curve.NamedCurve.P256, keypair.publicKey.x, keypair.publicKey.y);
-      assert(point.equals(keypair.publicKey));
-      done();
-    }).catch(function(e) {
-      console.log(e);
-    });
+  it('equals()', function() {
+    var keypair = curve.generateKeyPair(curve.NamedCurve.P256);
+    var point = new curve.Point(curve.NamedCurve.P256, keypair.publicKey.x, keypair.publicKey.y);
+    assert(point.equals(keypair.publicKey));
   });
 });
