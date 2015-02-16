@@ -1,4 +1,4 @@
-dhcurve v1.0.0 [![Build Status](https://travis-ci.org/mbullington/dhcurve.svg?branch=master)](https://travis-ci.org/mbullington/dhcurve)
+dhcurve [![Build Status](https://travis-ci.org/mbullington/dhcurve.svg?branch=master)](https://travis-ci.org/mbullington/dhcurve)
 ===
 
 ```
@@ -8,6 +8,9 @@ npm install dhcurve --save
 dhcurve is a lower-level ECC and ECDH library for JavaScript. It works in the browser, on node.js 0.10.x, 0.12.x, and io.js. On node-like platforms, dhcurve is backed by OpenSSL. In the browser it uses sjcl.
 
 Contributing
+===
+
+As crypto peer review is very important, feel free to review and critique the code! Help make dhcurve better for everyone.
 
 Examples
 ===
