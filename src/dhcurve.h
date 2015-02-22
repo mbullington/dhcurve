@@ -50,4 +50,6 @@ typedef ScopedOpenSSL<BIGNUM, BN_clear_free> S_BIGNUM;
 typedef ScopedOpenSSL<EC_KEY, EC_KEY_free> S_EC_KEY;
 typedef ScopedOpenSSL<EC_POINT, EC_POINT_clear_free> S_EC_POINT;
 
+#define THROW(msg) NanThrowError(NanError((msg)))
+
 #endif

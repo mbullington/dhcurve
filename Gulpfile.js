@@ -1,21 +1,22 @@
-var jshint = require('gulp-jshint'),
-    mocha = require('gulp-mocha'),
-    istanbul = require('gulp-istanbul'),
-    gulp = require('gulp'),
+var gulp = require('gulp'),
     runSequence = require('run-sequence');
-    
+
 gulp.task('lint', function() {
+  var jshint = require('gulp-jshint');
   return gulp.src('lib/**/*.js')
     .pipe(jshint())
     .pipe(jshint.reporter('jshint-stylish'));
 });
 
 gulp.task('mocha', function() {
+  var mocha = require('gulp-mocha');
   return gulp.src('test/test.js', {read: false})
     .pipe(mocha({ reporter: 'spec' }));
 });
 
 gulp.task('coverage', function (cb) {
+  var mocha = require('gulp-mocha');
+  var istanbul = require('gulp-istanbul');
   gulp.src(['lib/**/*.js', 'index.js'])
     .pipe(istanbul()) // Covering files
     .pipe(istanbul.hookRequire()) // Force `require` to return covered files

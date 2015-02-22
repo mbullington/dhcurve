@@ -27,6 +27,11 @@ describe('PrivateKey', function() {
       assert(secret1.toString('hex') === secret2.toString('hex'));
     });
   });
+
+  it('getPublicKey()', function() {
+    var keypair = curve.generateKeyPair(curve.NamedCurve.P256);
+    assert(keypair.publicKey.equals(keypair.privateKey.getPublicKey()));
+  });
 });
 
 describe('Point', function() {
