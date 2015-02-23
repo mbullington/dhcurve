@@ -25,9 +25,3 @@ var keypair2 = curve.generateKeyPair(curve.NamedCurve.P256);
 
 keypair1.privateKey.getSharedSecret(keypair2.publicKey);
 ```
-
-Future goals
-===
-
-- More functional helpers (curry, etc).
-- Optional lazy loading functionality.
