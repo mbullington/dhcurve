@@ -11,13 +11,16 @@ if(native) {
   console.log("Building dhcurve with blazing fast native extensions!");
 
   var gyp = spawn('node-gyp', ['rebuild']);
+  /* silence stdout
   gyp.stdout.on('data', function(data) {
     process.stdout.write(data);
   });
+  */
   gyp.stderr.on('data', function(data) {
     process.stdout.write(data);
   });
   gyp.on('exit', function(code) {
+    console.log("Build of native extensions completed.");
     process.exit(code);
   });
 }
