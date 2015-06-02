@@ -4,7 +4,8 @@
   "description": "A ECDH crytography library for node.js and the browser.",
   "main": "lib/index.js",
   "scripts": {
-    "test": "gulp test"
+    "test": "gulp test",
+    "install": "node install.js"
   },
   "repository": {
     "type": "git",
@@ -23,7 +24,10 @@
   },
   "homepage": "https://github.com/mbullington/dhcurve",
   "dependencies": {
-    "goal": "^1.1.0",
+    "goal": "^1.1.0"
+  },
+  "optionalDependencies": {
+    "bindings": "^1.2.1",
     "nan": "^1.6.2"
   },
   "devDependencies": {
