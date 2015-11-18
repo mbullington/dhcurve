@@ -24,9 +24,9 @@
   },
   "homepage": "https://github.com/mbullington/dhcurve",
   "dependencies": {
-    "goal": "^1.1.0",
     "bindings": "^1.2.1",
-    "nan": "^1.6.2"
+    "goal": "^1.1.0",
+    "nan": "^2.1.0"
   },
   "devDependencies": {
     "gulp": "^3.8.10",

@@ -2,11 +2,11 @@
 
 Local<Value> bnToBuf(const BIGNUM *bn) {
   int bytes = BN_num_bytes(bn);
-  Local<Object> buffer = NanNewBufferHandle(bytes);
+  Local<Object> buffer = Nan::NewBuffer(bytes).ToLocalChecked();
 
   if(BN_bn2bin(bn, (unsigned char *) Buffer::Data(buffer)) <= 0) {
     THROW("Failed to create Buffer from BIGNUM");
-    return NanUndefined();
+    return Nan::Undefined();
   }
 
   return buffer;
@@ -29,14 +29,14 @@ EC_POINT *jsPointToPoint(const EC_GROUP *group, const Local<Object> obj) {
     return NULL;
   }
 
-  S_BIGNUM x(bufToBn(obj->Get(NanNew<String>("x"))));
+  S_BIGNUM x(bufToBn(Nan::Get(obj, Nan::New<String>("x").ToLocalChecked()).ToLocalChecked()));
 
   if(x.get() == NULL) {
     THROW("Failed to create BIGNUM from x");
     return NULL;
   }
 
-  S_BIGNUM y(bufToBn(obj->Get(NanNew<String>("y"))));
+  S_BIGNUM y(bufToBn(Nan::Get(obj, Nan::New<String>("y").ToLocalChecked()).ToLocalChecked()));
 
   if(y.get() == NULL) {
     THROW("Failed to create BIGNUM from y");
@@ -56,31 +56,30 @@ EC_POINT *jsPointToPoint(const EC_GROUP *group, const Local<Object> obj) {
   return point;
 }
 
-NAN_METHOD(GenerateKeyPair) {
-  NanScope();
-
-  NanUtf8String namedCurve(args[0]);
+void GenerateKeyPair(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  Nan::Utf8String namedCurve(info[0]);
   int curve = OBJ_sn2nid(*namedCurve);
 
   if(curve == NID_undef) {
     THROW("Invalid curve name");
+    return;
   }
 
   S_EC_KEY key(EC_KEY_new_by_curve_name(curve));
 
   if(key.get() == NULL) {
     THROW("Key could not be created using curve name");
-    NanReturnUndefined();
+    return;
   }
 
   if(EC_KEY_generate_key(key.get()) <= 0) {
     THROW("Key failed to generate");
-    NanReturnUndefined();
+    return;
   }
 
-  Local<Object> r = NanNew<Object>();
+  Local<Object> r = Nan::New<Object>();
 
-  r->Set(NanNew<String>("privateKey"), bnToBuf(EC_KEY_get0_private_key(key.get())));
+  Nan::Set(r, Nan::New<String>("privateKey").ToLocalChecked(), bnToBuf(EC_KEY_get0_private_key(key.get())));
 
   const EC_POINT *publicKey = EC_KEY_get0_public_key(key.get());
   const EC_GROUP *group = EC_KEY_get0_group(key.get());
@@ -89,55 +88,53 @@ NAN_METHOD(GenerateKeyPair) {
 
   if(publicKey == NULL || group == NULL) {
     THROW("Could not get public key");
-    NanReturnUndefined();
+    return;;
   }
 
   EC_POINT_get_affine_coordinates_GFp(group, publicKey, x.get(), y.get(), NULL);
 
-  Local<Object> point = NanNew<Object>();
+  Local<Object> point = Nan::New<Object>();
 
-  point->Set(NanNew<String>("x"), bnToBuf(x.get()));
-  point->Set(NanNew<String>("y"), bnToBuf(y.get()));
+  Nan::Set(point, Nan::New<String>("x").ToLocalChecked(), bnToBuf(x.get()));
+  Nan::Set(point, Nan::New<String>("y").ToLocalChecked(), bnToBuf(y.get()));
 
-  r->Set(NanNew<String>("publicKey"), point);
+  Nan::Set(r, Nan::New<String>("publicKey").ToLocalChecked(), point);
 
-  NanReturnValue(r);
+  info.GetReturnValue().Set(r);
 }
 
-NAN_METHOD(GetSharedSecret) {
-  NanScope();
-
-  NanUtf8String namedCurve(args[0]);
+void GetSharedSecret(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  Nan::Utf8String namedCurve(info[0]);
   S_EC_KEY key(EC_KEY_new_by_curve_name(OBJ_sn2nid(*namedCurve)));
 
   if(key.get() == NULL) {
     THROW("Key could not be created using curve name");
-    NanReturnUndefined();
+    return;
   }
 
-  Local<Value> buf = args[1];
+  Local<Value> buf = info[1];
   S_BIGNUM privateKey(bufToBn(buf));
 
   if(privateKey.get() == NULL) {
     THROW("Could not use private key");
-    NanReturnUndefined();
+    return;
   }
 
   EC_KEY_set_private_key(key.get(), (const BIGNUM *) privateKey.get());
 
   const EC_GROUP *group = EC_KEY_get0_group(key.get());
-  S_EC_POINT peerKey(jsPointToPoint(group, Local<Object>::Cast(args[2])));
+  S_EC_POINT peerKey(jsPointToPoint(group, info[2].As<Object>()));
 
   if(peerKey.get() == NULL) {
     THROW("Could not use remote public key provided");
-    NanReturnUndefined();
+    return;
   }
 
   int length = Buffer::Length(buf);
 
   if((EC_GROUP_get_degree(group) + 7) / 8 != length) {
     THROW("Private key is incorrect size");
-    NanReturnUndefined();
+    return;
   }
 
   char* secret = new char[length];
@@ -145,31 +142,29 @@ NAN_METHOD(GetSharedSecret) {
   if(ECDH_compute_key(secret, length, peerKey.get(), key.get(), NULL) != length) {
     THROW("Can not compute ECDH shared key");
     delete secret;
-    NanReturnUndefined();
+    return;;
   }
 
-  Local<Object> r = NanNewBufferHandle(secret, length);
+  Local<Object> r = Nan::NewBuffer(secret, length).ToLocalChecked();
   delete secret;
-  NanReturnValue(r);
+  info.GetReturnValue().Set(r);
 }
 
-NAN_METHOD(GetPublicKey) {
-  NanScope();
-
-  NanUtf8String namedCurve(args[0]);
+void GetPublicKey(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  Nan::Utf8String namedCurve(info[0]);
   S_EC_KEY key(EC_KEY_new_by_curve_name(OBJ_sn2nid(*namedCurve)));
 
   if(key.get() == NULL) {
     THROW("Key could not be created using curve name");
-    NanReturnUndefined();
+    return;;
   }
 
-  Local<Value> buf = args[1];
+  Local<Value> buf = info[1];
   S_BIGNUM privateKey(bufToBn(buf));
 
   if(privateKey.get() == NULL) {
     THROW("Could not use private key");
-    NanReturnUndefined();
+    return;;
   }
 
   const EC_GROUP *group = EC_KEY_get0_group(key.get());
@@ -177,12 +172,12 @@ NAN_METHOD(GetPublicKey) {
 
   if(group == NULL) {
     THROW("Could not get EC_GROUP");
-    NanReturnUndefined();
+    return;;
   }
 
   if(publicKey.get() == NULL) {
     THROW("Could not get EC_POINT");
-    NanReturnUndefined();
+    return;;
   }
 
   ScopedOpenSSL<BN_CTX, BN_CTX_free> ctx(BN_CTX_new());
@@ -191,7 +186,7 @@ NAN_METHOD(GetPublicKey) {
   if(EC_POINT_mul(group, publicKey.get(), privateKey.get(), NULL, NULL, ctx.get()) <= 0) {
     THROW("Failed to multiply private key");
     BN_CTX_end(ctx.get());
-    NanReturnUndefined();
+    return;;
   }
 
   S_BIGNUM x(BN_new());
@@ -201,18 +196,18 @@ NAN_METHOD(GetPublicKey) {
 
   BN_CTX_end(ctx.get());
 
-  Local<Object> point = NanNew<Object>();
+  Local<Object> point = Nan::New<Object>();
 
-  point->Set(NanNew<String>("x"), bnToBuf(x.get()));
-  point->Set(NanNew<String>("y"), bnToBuf(y.get()));
+  Nan::Set(point, Nan::New<String>("x").ToLocalChecked(), bnToBuf(x.get()));
+  Nan::Set(point, Nan::New<String>("y").ToLocalChecked(), bnToBuf(y.get()));
 
-  NanReturnValue(point);
+  info.GetReturnValue().Set(point);
 }
 
 void init(Handle<Object> exports) {
-  NODE_SET_METHOD(exports, "generateKeyPair", GenerateKeyPair);
-  NODE_SET_METHOD(exports, "getSharedSecret", GetSharedSecret);
-  NODE_SET_METHOD(exports, "getPublicKey", GetPublicKey);
+  Nan::SetMethod(exports, "generateKeyPair", GenerateKeyPair);
+  Nan::SetMethod(exports, "getSharedSecret", GetSharedSecret);
+  Nan::SetMethod(exports, "getPublicKey", GetPublicKey);
 }
 
 NODE_MODULE(dhcurve, init)
