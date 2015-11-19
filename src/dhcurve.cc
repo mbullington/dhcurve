@@ -88,7 +88,7 @@ void GenerateKeyPair(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
   if(publicKey == NULL || group == NULL) {
     THROW("Could not get public key");
-    return;;
+    return;
   }
 
   EC_POINT_get_affine_coordinates_GFp(group, publicKey, x.get(), y.get(), NULL);
@@ -142,11 +142,10 @@ void GetSharedSecret(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   if(ECDH_compute_key(secret, length, peerKey.get(), key.get(), NULL) != length) {
     THROW("Can not compute ECDH shared key");
     delete secret;
-    return;;
+    return;
   }
 
   Local<Object> r = Nan::NewBuffer(secret, length).ToLocalChecked();
-  delete secret;
   info.GetReturnValue().Set(r);
 }
 

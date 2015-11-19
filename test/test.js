@@ -13,10 +13,7 @@ describe('PrivateKey', function() {
 
       var secret = privateKey.getSharedSecret(publicKey);
       var secretTest = new Buffer('116128c016cf380933c4b40ffeee8ef5999167f5c3d49298ba2ebfd0502e74e3', 'hex');
-
-      console.log(secret.toString('hex'));
-      console.log(secretTest.toString('hex'));
-
+      
       assert(secret.toString('hex') === secretTest.toString('hex'));
     });
 
