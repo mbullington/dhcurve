@@ -1,6 +1,6 @@
 {
   "name": "dhcurve",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A ECDH crytography library for node.js and the browser.",
   "main": "lib/index.js",
   "scripts": {
@@ -17,7 +17,7 @@
     "webcrypto",
     "openssl"
   ],
-  "author": "Michael Bullington",
+  "author": "Michael Bullington <m.bullington@dglogik.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/mbullington/dhcurve/issues"
@@ -25,7 +25,6 @@
   "homepage": "https://github.com/mbullington/dhcurve",
   "dependencies": {
     "bindings": "^1.2.1",
-    "goal": "^1.1.0",
     "nan": "^2.1.0"
   },
   "devDependencies": {
@@ -40,6 +39,5 @@
     "karma-spec-reporter": "0.0.16",
     "mocha": "^2.1.0",
     "run-sequence": "^1.0.2"
-  },
-  "browser": "lib/browser.js"
+  }
 }
