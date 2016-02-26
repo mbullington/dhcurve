@@ -10,7 +10,11 @@ var native = process.env['npm_package_config_native'] != null ? stringToBool(pro
 if(native) {
   console.log("Building dhcurve with blazing fast native extensions!");
 
-  var gyp = spawn('node-gyp', ['rebuild']);
+  var gyp = spawn('node-gyp', ['rebuild'], {
+    cwd: __dirname,
+    env: process.env,
+    shell: true
+  });
   /* silence stdout
   gyp.stdout.on('data', function(data) {
     process.stdout.write(data);
