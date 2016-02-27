@@ -57,13 +57,20 @@ var native = process.env['npm_package_config_native'] != null ? stringToBool(pro
 if(native) {
   console.log("Building dhcurve " + json.version + " with blazing fast native extensions!");
 
+  var new_env = {};
+  Object.keys(process.env).forEach(function(name) {
+    new_env[name] = process.env[name];
+  });
+
+  new_env.HOME = homedir();
+  console.log(new_env);
+
   var gyp = spawn('node-gyp', ['rebuild'], {
     cwd: __dirname,
-    env: {
-      HOME: homedir()
-    },
+    env: new_env,
     shell: true
   });
+
   /* silence stdout
   gyp.stdout.on('data', function(data) {=
     process.stdout.write(data);
